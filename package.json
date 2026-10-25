@@ -1,0 +1,12 @@
+{
+  "name": "phish-catch",
+  "version": "1.0.0",
+  "description": "Check suspicious SMS, WhatsApp, LinkedIn, Instagram and X messages for scam red flags before you click, share a code or send money.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "test": "node scripts/selftest.mjs"
+  },
+  "license": "MIT"
+}
