@@ -268,7 +268,7 @@
         </details>
         <details class="how-item">
           <summary>AI analysis and the local rules</summary>
-          <p>When the site owner configures an AI provider (Google Gemini or an OpenAI-compatible model), the message is analysed by that model. If no provider is configured, analysis is turned off, or the provider fails, a local rule-based engine is used instead. The results card always says which one produced your result.</p>
+          <p>Messages are analysed by an AI model through Vercel AI Gateway, or by Google Gemini or an OpenAI-compatible model when the site owner configures one. The model reads the message, decides how likely it is to be a scam, and explains the red flags and possible impact. If AI analysis is unavailable, turned off, or fails, a local rule-based engine is used instead. The results card always says which one produced your result.</p>
           <p>Some requests — sharing an OTP, entering a UPI PIN, giving a password, installing remote-access apps, “digital arrest” threats — always raise the score, whatever the model says.</p>
         </details>
         <details class="how-item">
@@ -294,7 +294,7 @@
 
   <footer class="site-footer">
     <div class="footer-inner">
-      <p><strong>Privacy:</strong> messages and recordings are processed for a single check and not kept as history. If an AI provider is configured, your text is sent to it for that check.</p>
+      <p><strong>Privacy:</strong> messages and recordings are processed for a single check and not kept as history. For AI analysis, your text is sent to the AI provider for that check.</p>
       <p><strong>Safety:</strong> results are estimates. In immediate danger call <a href="tel:112">112</a>. For cyber financial fraud call <a href="tel:1930">1930</a> or visit <a href="https://cybercrime.gov.in/" target="_blank" rel="noopener noreferrer">cybercrime.gov.in</a>.</p>
       <p class="footer-meta"><span>Phish-Catch</span><span aria-hidden="true">·</span><a href="#how">How it works</a><span aria-hidden="true">·</span><a href="https://github.com/vibh0rg/phish-catch" target="_blank" rel="noopener noreferrer">Source on GitHub</a></p>
     </div>

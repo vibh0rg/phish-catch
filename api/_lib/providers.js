@@ -1,10 +1,13 @@
-// AI provider adapters: Gemini, or any OpenAI-compatible API.
+// AI provider adapters: Gemini, any OpenAI-compatible API, or Vercel AI Gateway.
 // Message text and audio are sent to the provider for one request and never logged or stored here.
 
 import { SOURCES } from '../../public/lib/analyzer.js';
 
 const env = process.env;
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+const GATEWAY_BASE = 'https://ai-gateway.vercel.sh/v1';
+// A model on AI Gateway's free tier, so a fresh Vercel deployment gets AI analysis with no key or credits.
+const GATEWAY_DEFAULT_MODEL = 'nvidia/nemotron-3.5-lightning-free';
 const TIMEOUT_MS = 20_000;
 
 const SYSTEM_PROMPT = `You are Phish-Catch, a careful scam-message analyst for people in India.
@@ -30,8 +33,12 @@ Reply with JSON only, in exactly this shape:
 }
 Rules: 0-6 redFlags, most important first. 0-3 positives. 2-4 advice items. Score guide: 0-29 likely safe, 30-59 suspicious, 60-100 likely scam. "impacts" describes what could happen to the user's device, money, social or messaging accounts, and physical safety if they did what the message asks.`;
 
-/** Which analysis provider this deployment is configured for. */
-export function modelConfig() {
+/**
+ * Which analysis provider to use for this request. Order in auto mode: Gemini key,
+ * OpenAI-compatible key, then Vercel AI Gateway (an AI_GATEWAY_API_KEY, or the OIDC
+ * token Vercel attaches to every function request), then the local rules.
+ */
+export function modelConfig(req) {
   const mode = (env.PHISH_PROVIDER || 'auto').toLowerCase();
   if (mode === 'rules' || env.DISABLE_MODEL_ANALYSIS === 'true') {
     return { kind: 'rules', reason: 'AI analysis is turned off on this deployment, so local rules were used.' };
@@ -40,7 +47,11 @@ export function modelConfig() {
     return { kind: 'gemini', label: 'Google Gemini', model: env.GEMINI_MODEL || 'gemini-2.5-flash' };
   }
   if ((mode === 'auto' || mode === 'openai') && env.OPENAI_API_KEY) {
-    return { kind: 'openai', label: env.OPENAI_PROVIDER_LABEL || 'OpenAI-compatible model', model: env.OPENAI_MODEL || 'gpt-4o-mini', baseUrl: openaiBase() };
+    return { kind: 'openai', label: env.OPENAI_PROVIDER_LABEL || 'OpenAI-compatible model', model: env.OPENAI_MODEL || 'gpt-4o-mini', baseUrl: openaiBase(), apiKey: env.OPENAI_API_KEY };
+  }
+  const gatewayToken = env.AI_GATEWAY_API_KEY || req?.headers?.['x-vercel-oidc-token'] || env.VERCEL_OIDC_TOKEN;
+  if ((mode === 'auto' || mode === 'gateway') && gatewayToken) {
+    return { kind: 'gateway', label: 'Vercel AI Gateway', model: env.AI_GATEWAY_MODEL || GATEWAY_DEFAULT_MODEL, baseUrl: GATEWAY_BASE, apiKey: gatewayToken, timeoutMs: 30_000 };
   }
   return { kind: 'rules', reason: 'No AI provider is configured on this deployment, so local rules were used.' };
 }
@@ -53,7 +64,7 @@ export function speechConfig() {
     return { kind: 'gemini', label: 'Google Gemini', model: env.GEMINI_TRANSCRIBE_MODEL || env.GEMINI_MODEL || 'gemini-2.5-flash' };
   }
   if ((mode === 'auto' || mode === 'openai') && env.OPENAI_API_KEY) {
-    return { kind: 'openai', label: 'OpenAI-compatible speech model', model: env.OPENAI_TRANSCRIBE_MODEL || 'whisper-1', baseUrl: openaiBase() };
+    return { kind: 'openai', label: 'OpenAI-compatible speech model', model: env.OPENAI_TRANSCRIBE_MODEL || 'whisper-1', baseUrl: openaiBase(), apiKey: env.OPENAI_API_KEY };
   }
   return null;
 }
@@ -82,7 +93,7 @@ export async function transcribe(config, bytes, mimeType, filename) {
   form.append('model', config.model);
   const res = await fetch(`${config.baseUrl}/audio/transcriptions`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}` },
+    headers: { Authorization: `Bearer ${config.apiKey}` },
     body: form,
     signal: AbortSignal.timeout(TIMEOUT_MS * 2),
   });
@@ -113,7 +124,7 @@ async function geminiText(config, parts, json) {
 async function openaiChat(config, prompt, useJsonMode = true) {
   const res = await fetch(`${config.baseUrl}/chat/completions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENAI_API_KEY}` },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.apiKey}` },
     body: JSON.stringify({
       model: config.model,
       temperature: 0.2,
@@ -123,11 +134,14 @@ async function openaiChat(config, prompt, useJsonMode = true) {
         { role: 'user', content: prompt },
       ],
     }),
-    signal: AbortSignal.timeout(TIMEOUT_MS),
+    signal: AbortSignal.timeout(config.timeoutMs || TIMEOUT_MS),
   });
   // Some OpenAI-compatible servers reject response_format; retry once without it.
   if (res.status === 400 && useJsonMode) return openaiChat(config, prompt, false);
-  if (!res.ok) throw new Error(`OpenAI-compatible HTTP ${res.status}`);
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`${config.label} HTTP ${res.status} ${detail.slice(0, 200)}`);
+  }
   const data = await res.json();
   return String(data.choices?.[0]?.message?.content || '');
 }

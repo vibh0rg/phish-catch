@@ -28,7 +28,13 @@ scripts/
   selftest.mjs     regression checks for the rules
 ```
 
-**Analysis.** `/api/analyze` uses Google Gemini or any OpenAI-compatible model when an API key is configured. Without one — or if the provider fails, or `PHISH_PROVIDER=rules` — it uses the local rule-based engine, and the result card says so. If the API can’t be reached at all, the browser runs the same rules locally.
+**Analysis.** `/api/analyze` sends the message to an AI model, which scores it and explains the red flags and impact. Provider order in `auto` mode:
+
+1. Google Gemini, if `GEMINI_API_KEY` is set
+2. Any OpenAI-compatible API, if `OPENAI_API_KEY` is set
+3. **Vercel AI Gateway** — works on Vercel with no key at all: the function authenticates with the OIDC token Vercel attaches to each request, and uses a free-tier model (`nvidia/nemotron-3.5-lightning-free` by default; set `AI_GATEWAY_MODEL` to change it, e.g. to `google/gemini-2.5-flash-lite` once you have Gateway credits)
+
+If no provider is available, the provider fails, or `PHISH_PROVIDER=rules`, it uses the local rule-based engine, and the result card says so. If the API can’t be reached at all, the browser runs the same rules locally.
 
 Some requests always rate as likely scams regardless of the model: asking you to share an OTP, linking your phone number to a code, entering a UPI PIN or approving a collect request, giving passwords or card details, installing APKs or remote-access apps, and “digital arrest” threats.
 
@@ -51,13 +57,14 @@ To try AI analysis locally, copy `.env.example` to `.env` and add a key.
 ## Deploy on Vercel
 
 1. Import this GitHub repository at [vercel.com/new](https://vercel.com/new). The defaults work — `vercel.json` sets the output directory to `public` and there is no build step.
-2. Optional: under **Settings → Environment Variables**, add `GEMINI_API_KEY` (or `OPENAI_API_KEY` + `OPENAI_MODEL`, and `OPENAI_BASE_URL` for other compatible providers), then redeploy.
+2. That’s it — AI analysis runs through Vercel AI Gateway automatically. Optional: under **Settings → Environment Variables**, add `GEMINI_API_KEY` (also enables voice transcription) or `OPENAI_API_KEY` + `OPENAI_MODEL` (and `OPENAI_BASE_URL` for other compatible providers), then redeploy.
 
 Every push to `main` redeploys automatically.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `PHISH_PROVIDER` | `auto` | `auto`, `gemini`, `openai`, or `rules` (never call a model) |
+| `PHISH_PROVIDER` | `auto` | `auto`, `gemini`, `openai`, `gateway`, or `rules` (never call a model) |
+| `AI_GATEWAY_MODEL` | `nvidia/nemotron-3.5-lightning-free` | Vercel AI Gateway model (OIDC auth on Vercel, or `AI_GATEWAY_API_KEY` elsewhere) |
 | `GEMINI_API_KEY` / `GEMINI_MODEL` | — / `gemini-2.5-flash` | Gemini analysis and transcription |
 | `OPENAI_API_KEY` / `OPENAI_MODEL` | — / `gpt-4o-mini` | OpenAI-compatible analysis |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Point at any compatible API |

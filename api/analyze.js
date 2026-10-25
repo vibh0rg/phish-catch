@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   }
 
   const rules = analyzeWithRules(text, source);
-  const config = modelConfig();
+  const config = modelConfig(req);
   if (config.kind === 'rules') {
     rules.engine.note = config.reason;
     return sendJson(res, 200, rules);
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
   } catch (err) {
     // Log the failure only; never the message.
     console.error(`[analyze] ${config.kind} failed: ${err.message}`);
-    rules.engine.note = `${config.label} didn’t respond in time, so local rules were used instead.`;
+    rules.engine.note = `${config.label} couldn’t analyse this message just now, so local rules were used instead.`;
     return sendJson(res, 200, rules);
   }
 }
