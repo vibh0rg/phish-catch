@@ -32,7 +32,7 @@ scripts/
 
 1. Google Gemini, if `GEMINI_API_KEY` is set
 2. Any OpenAI-compatible API, if `OPENAI_API_KEY` is set
-3. **Vercel AI Gateway** — works on Vercel with no key at all: the function authenticates with the OIDC token Vercel attaches to each request, and uses a free-tier model (`nvidia/nemotron-3.5-lightning-free` by default; set `AI_GATEWAY_MODEL` to change it, e.g. to `google/gemini-2.5-flash-lite` once you have Gateway credits)
+3. **Vercel AI Gateway** — on Vercel, no key is needed: the function authenticates with the OIDC token Vercel attaches to each request, and uses a free-tier model (`nvidia/nemotron-3.5-lightning-free` by default; set `AI_GATEWAY_MODEL` to change it). AI Gateway requires a credit card on the Vercel account, even for free credits.
 
 If no provider is available, the provider fails, or `PHISH_PROVIDER=rules`, it uses the local rule-based engine, and the result card says so. If the API can’t be reached at all, the browser runs the same rules locally.
 
@@ -65,7 +65,7 @@ Every push to `main` redeploys automatically.
 | --- | --- | --- |
 | `PHISH_PROVIDER` | `auto` | `auto`, `gemini`, `openai`, `gateway`, or `rules` (never call a model) |
 | `AI_GATEWAY_MODEL` | `nvidia/nemotron-3.5-lightning-free` | Vercel AI Gateway model (OIDC auth on Vercel, or `AI_GATEWAY_API_KEY` elsewhere) |
-| `GEMINI_API_KEY` / `GEMINI_MODEL` | — / `gemini-2.5-flash` | Gemini analysis and transcription |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | — / `gemini-3.8-flash` | Gemini analysis and transcription (free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)) |
 | `OPENAI_API_KEY` / `OPENAI_MODEL` | — / `gpt-4o-mini` | OpenAI-compatible analysis |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Point at any compatible API |
 | `OPENAI_TRANSCRIBE_MODEL` | `whisper-1` | Speech-to-text model |
