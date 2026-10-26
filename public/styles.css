@@ -1155,7 +1155,8 @@ input[type='file']:focus-visible + .file-btn { outline: 2px solid var(--focus); 
 .btn, .ptab, .seg-opt span, .chip, .source-chip, .engine-chip, .char-count, .summary-hint,
 .file-name, .verdict-label, .verdict-switch span, .score-max, .score-label, .meter-scale,
 .copy-status, .engine-note, .link-ext, .link-plain, .footer-meta, .impact-level, .flag-sev,
-.tag, .count, .empty-title, .loading, .skip-link, .support-num { font-family: var(--sans); }
+.tag, .count, .empty-title, .loading, .skip-link, .support-num, .field-label, .subhead,
+.limit-title { font-family: var(--sans); }
 
 .field-label, .subhead, .limit-title, .score-label, .impact-level, .flag-sev, .verdict-switch span {
   text-transform: none;
