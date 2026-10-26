@@ -31,7 +31,7 @@
   --meter-caution: #e59a12;
   --meter-high: #dc2f2f;
 
-  --p-sms: #5260d6;          --p-sms-ink: #3e4bbf;
+  --p-sms: #2f6f8f;          --p-sms-ink: #245a74;
   --p-whatsapp: #25d366;     --p-whatsapp-ink: #0d7a43;
   --p-linkedin: #0a66c2;     --p-linkedin-ink: #0a5cb0;
   --p-instagram: #e1306c;    --p-instagram-ink: #c2185b;
@@ -41,11 +41,13 @@
   --accent: var(--p-sms);
   --accent-ink: var(--p-sms-ink);
 
-  --radius: 14px;
-  --radius-sm: 10px;
-  --radius-xs: 7px;
-  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-xs: 4px;
+  --sans: 'Public Sans', 'Segoe UI', Arial, sans-serif;
+  --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  /* Mono is reserved for quoted message text, not interface chrome. */
+  --mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -78,7 +80,7 @@
     --meter-low: #2fb565;
     --meter-caution: #e9a422;
     --meter-high: #e5484d;
-    --p-sms: #8b95f0;        --p-sms-ink: #a5adf5;
+    --p-sms: #6fb3d2;        --p-sms-ink: #8cc4de;
     --p-whatsapp-ink: #4ade80;
     --p-linkedin: #3b8fe0;   --p-linkedin-ink: #70aef0;
     --p-instagram: #f0568a;  --p-instagram-ink: #f47aa3;
@@ -116,7 +118,7 @@
   --meter-low: #2fb565;
   --meter-caution: #e9a422;
   --meter-high: #e5484d;
-  --p-sms: #8b95f0;        --p-sms-ink: #a5adf5;
+  --p-sms: #6fb3d2;        --p-sms-ink: #8cc4de;
   --p-whatsapp-ink: #4ade80;
   --p-linkedin: #3b8fe0;   --p-linkedin-ink: #70aef0;
   --p-instagram: #f0568a;  --p-instagram-ink: #f47aa3;
@@ -1136,4 +1138,62 @@ input[type='file']:focus-visible + .file-btn { outline: 2px solid var(--focus); 
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ---------- Editorial pass ----------
+   Plain form-like interface: serif headings, sentence-case labels, square-ish
+   controls, flat bordered panels, no glass, pills, step numbers or count-ups. */
+
+.site-header { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.brand-name, .card-title, .intro h1, .how h2, .score-num { font-family: var(--serif); }
+.brand-name { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+.intro h1 { font-size: clamp(28px, 3.4vw, 40px); font-weight: 600; line-height: 1.12; letter-spacing: -0.015em; max-width: 22ch; }
+.card-title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.how h2 { font-size: 26px; letter-spacing: -0.01em; }
+.score-num { font-weight: 600; letter-spacing: -0.02em; }
+
+.btn, .ptab, .seg-opt span, .chip, .source-chip, .engine-chip, .char-count, .summary-hint,
+.file-name, .verdict-label, .verdict-switch span, .score-max, .score-label, .meter-scale,
+.copy-status, .engine-note, .link-ext, .link-plain, .footer-meta, .impact-level, .flag-sev,
+.tag, .count, .empty-title, .loading, .skip-link, .support-num { font-family: var(--sans); }
+
+.field-label, .subhead, .limit-title, .score-label, .impact-level, .flag-sev, .verdict-switch span {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.field-label { font-size: 14px; font-weight: 600; color: var(--text-2); }
+.subhead { margin-top: 28px; font-size: 15.5px; font-weight: 600; color: var(--text); }
+.limit-title { font-size: 15px; }
+.limit-title::before { display: none; }
+.score-label { font-size: 12.5px; }
+
+.card { box-shadow: none; }
+.checker::before { height: 4px; }
+.btn { border-radius: var(--radius-xs); font-weight: 600; }
+.btn:focus-visible, .chip:focus-visible, .ptab:focus-visible { border-radius: var(--radius-xs); }
+.btn-primary:hover:not(:disabled) { box-shadow: none; }
+.btn .icon { display: none; }
+
+.platform-tabs { align-self: stretch; gap: 2px; padding: 0; background: none; border: 0; border-radius: 0; }
+.ptab {
+  padding: 0 10px;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  font-size: 13.5px;
+}
+.ptab[aria-pressed='true'] { background: none; box-shadow: none; border-bottom-color: var(--dot); font-weight: 600; }
+
+.chip { border-style: solid; border-radius: var(--radius-xs); font-size: 13px; }
+.source-chip, .engine-chip { padding: 0; background: none; border: 0; border-radius: 0; font-size: 13px; }
+.source-chip { color: var(--accent-ink); font-weight: 600; }
+.verdict-switch, .verdict-switch span { border-radius: var(--radius-xs); }
+.verdict-switch span { font-size: 12.5px; }
+.flag-sev { border-radius: 3px; font-size: 11.5px; }
+.count { border-radius: 3px; }
+.empty { border-style: solid; background: var(--surface-2); }
+.results-body { animation: none; }
+
+@media (max-width: 560px) {
+  #try-sample { width: auto; padding: 6px 12px; }
+  #try-sample span { display: inline; }
 }

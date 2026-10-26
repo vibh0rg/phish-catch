@@ -254,21 +254,6 @@ async function runCheck() {
 
 els.analyzeBtn.addEventListener('click', runCheck);
 
-function animateScore(target) {
-  if (reduceMotion.matches) {
-    els.scoreValue.textContent = String(target);
-    return;
-  }
-  const start = performance.now();
-  const duration = 650;
-  const step = (now) => {
-    const t = Math.min(1, (now - start) / duration);
-    els.scoreValue.textContent = String(Math.round(target * (1 - (1 - t) ** 3)));
-    if (t < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
 function engineText(engine) {
   if (engine.kind === 'model') {
     const cross = engine.crossChecked ? ' Score raised by the rule check because the message makes a high-risk request.' : '';
@@ -284,7 +269,7 @@ function render(result) {
 
   els.results.dataset.verdict = verdict;
   showResults('body');
-  animateScore(score);
+  els.scoreValue.textContent = String(score);
   els.verdictLabel.textContent = VERDICT_LABEL[verdict];
   els.verdictSummary.textContent = result.summary;
 
