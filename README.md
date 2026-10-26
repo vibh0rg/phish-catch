@@ -65,7 +65,7 @@ Every push to `main` redeploys automatically.
 | --- | --- | --- |
 | `PHISH_PROVIDER` | `auto` | `auto`, `gemini`, `openai`, `gateway`, or `rules` (never call a model) |
 | `AI_GATEWAY_MODEL` | `nvidia/nemotron-3.5-lightning-free` | Vercel AI Gateway model (OIDC auth on Vercel, or `AI_GATEWAY_API_KEY` elsewhere) |
-| `GEMINI_API_KEY` / `GEMINI_MODEL` | — / `gemini-3.8-flash` | Gemini analysis and transcription (free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)) |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | — / `gemini-3.8-flash` | Gemini analysis and transcription (free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)). `GOOGLE_API_KEY`, or `API_KEY` holding an `AIza…` key, also work |
 | `OPENAI_API_KEY` / `OPENAI_MODEL` | — / `gpt-4o-mini` | OpenAI-compatible analysis |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Point at any compatible API |
 | `OPENAI_TRANSCRIBE_MODEL` | `whisper-1` | Speech-to-text model |
